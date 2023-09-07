@@ -74,7 +74,7 @@ const PostThread = ({ userId }: { userId: string }) => {
             </FormItem>
           )}
         />
-
+      
         <Button type="submit" className="bg-primary-500">
           Submit
         </Button>

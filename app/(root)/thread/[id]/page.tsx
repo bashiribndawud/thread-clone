@@ -1,22 +1,62 @@
-import ThreadCard from '@/components/cards/ThreadCard';
-import React from 'react'
+import ThreadCard from "@/components/cards/ThreadCard";
+import Comment from "@/components/forms/Comment";
+import { fetchThreadById } from "@/lib/actions/thread.action";
+import { fetchUser } from "@/lib/actions/user.actions";
+import { currentUser } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+import React from "react";
 
-const Page = ({params}: {params: {id: string}}) => {
+const Page = async ({ params }: { params: { id: string } }) => {
+  if (!params.id) return null;
+  const user = await currentUser();
+  if (!user) return null;
+  const userInfo = await fetchUser(user.id);
+  if (!userInfo?.onboarded) redirect("/onboarding");
+
+  const thread = await fetchThreadById(params.id);
+  // console.log(thread.children[0]);
   return (
     <section className="relative">
-      <ThreadCard
-        key={post._id}
-        id={post._id}
-        currentUserId={user?.id || ""}
-        parentId={post.parentId}
-        content={post.text}
-        author={post.author}
-        community={post.community}
-        createdAt={post.createdAt}
-        comments={post.children}
-      />
+      <div>
+        <ThreadCard
+          key={thread._id}
+          id={thread._id}
+          currentUserId={user?.id || ""}
+          parentId={thread.parentId}
+          content={thread.text}
+          author={thread.author}
+          community={thread.community}
+          createdAt={thread.createdAt}
+          comments={thread.children}
+        />
+      </div>
+
+      <div className="mt-7">
+        <Comment
+          threadId={params.id}
+          currentUserImg={user.imageUrl}
+          currentUserId={JSON.stringify(userInfo._id)}
+        />
+      </div>
+
+      <div className="mt-10">
+        {thread.children.map((childItem: any) => (
+          <ThreadCard
+            key={childItem._id}
+            id={childItem._id}
+            currentUserId={childItem?.id || ""}
+            parentId={childItem.parentId}
+            content={childItem.text}
+            author={childItem.author}
+            community={childItem.community}
+            createdAt={childItem.createdAt}
+            comments={childItem.children}
+            isComment={true}
+          />
+        ))}
+      </div>
     </section>
   );
-}
+};
 
-export default Page
+export default Page;
