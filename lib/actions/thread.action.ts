@@ -140,3 +140,5 @@ export async function addCommentToThread({threadId, commentText, userId, path}: 
     throw new Error(`Error adding comment to thread: ${error.message}`);
   }
 }
+
+
